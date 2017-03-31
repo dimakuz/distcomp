@@ -140,3 +140,49 @@ Broadcast and spanning tree example
 
 We'll describe an aglorimth that performs a broadcast, that is sending a\
 message to all of the nodes in the network.
+
+Initiator node code:
+
+::
+
+    initailization(M):
+        ackCounter = 0
+        send M to all neighbors
+
+    upon receiving Ack on port j:
+        ackCounter++
+        if ackCounter == | neigh |:
+            Terminate()
+
+On other nodes:
+
+::
+
+    initializtion():
+        ackCounter = 0
+        parent = nil
+
+    upon receiving M != Ack on port j:
+        if parent is nil:
+            parent = j
+            if | neighs | == 1:
+                send Ack to j
+            else:
+                send M to all neighbors except j
+        else:
+            send Ack to j
+
+    upon receiving Ack on port j:
+        ackCounter++
+        if ackCounter == | neigh | - 1:
+            send Ack to parent
+
+
+By using parent on each of the nodes we get a spanning tree (all nodes except
+root have a single parent, exactly N - 1 edges).
+
+Message M traves twice on all edges except for the tree edges, where it
+traverses once.
+
+Total message complexity is :math:`2|E| - (|V| - 1)`
+
