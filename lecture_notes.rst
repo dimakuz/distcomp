@@ -186,3 +186,35 @@ traverses once.
 
 Total message complexity is :math:`2|E| - (|V| - 1)`
 
+Snapshots
+---------
+
+A snapshot for a given node is its state at a given point in time, such that
+given the snapshot, the node can be reverted to that point, and its computation
+will continue.
+
+For a network with multiple nodes, a snapshot is the collection of all
+snapshots of all individual nodes. As we mentioned earlier, we don't have
+simultaneous events in our model, thus no node snapshots are taken at the exact
+same time.
+
+To create a snapshot, we can use the Broadcast model above. An
+arbitrary initiator node floods a custom message, and each node saves its state
+once it handles the snapshot message.
+
+We can also represent a snapshot as vector of times where each element is the
+time a specific node took a snapshot (e.g. :math:`<t_1,t_2,\dots,t_N>`)
+
+How do we make sure our snapshot is valid (i.e. the the distributed
+computation will continue correctly?
+
+Snapshot line:
+
+.. figure:: snapshot-line.png
+
+   Black are snapshot messages, gray are valid messages, red is a violation.
+
+Lecture 2
+~~~~~~~~~
+
+TODO
