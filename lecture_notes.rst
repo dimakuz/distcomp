@@ -11,8 +11,8 @@ Intro
 
 Key differences between centralized and distributed computation:
 
- * Asynchronicity of the network.
- * Fault / unavailability of nodes.
+* Asynchronicity of the network.
+* Fault / unavailability of nodes.
 
 This adds uncertainty to distributed algorithms.
 
@@ -24,36 +24,36 @@ and its environment, e.g.
 
 How nodes share information:
 
- * **Message passing** - each node is connected to a group of other nodes, each
-   via a different port, and can send/receive messages from those ports.
- * **Shared memory** - all nodes have access to a piece of shared memory, and
-   can exchange information by writing and reading from the memory.
+* **Message passing** - each node is connected to a group of other nodes, each
+  via a different port, and can send/receive messages from those ports.
+* **Shared memory** - all nodes have access to a piece of shared memory, and
+  can exchange information by writing and reading from the memory.
 
 What knowledge the nodes have:
 
- * Does each one have a unique ID?
- * Do they know the identity of other computers?
- * Do they know the network topology?
- * Do they know the total number of nodes?
+* Does each one have a unique ID?
+* Do they know the identity of other computers?
+* Do they know the network topology?
+* Do they know the total number of nodes?
 
 Do nodes suffer faults:
 
- * **No faults** - all nodes are always operational and run their computation
-   as programmed.
- * **Fail/Stop** - a node can occaionally fail. The failure is complete, i.e. a
-   failed node goes off-line.
- * **Byzantine** - nodes can fail but remain on-line, yielding malicious or
-   invalid results.
- * **Rational agents** - nodes can "cheat" in order to affect the result of an
-   algorithm, e.g. a node affects leader election to minimize the chance of
-   being chosen leader to do less computation, or vice versa, maximizing the
-   change to be in control of task distribution.
+* **No faults** - all nodes are always operational and run their computation
+  as programmed.
+* **Fail/Stop** - a node can occaionally fail. The failure is complete, i.e. a
+  failed node goes off-line.
+* **Byzantine** - nodes can fail but remain on-line, yielding malicious or
+  invalid results.
+* **Rational agents** - nodes can "cheat" in order to affect the result of an
+  algorithm, e.g. a node affects leader election to minimize the chance of
+  being chosen leader to do less computation, or vice versa, maximizing the
+  change to be in control of task distribution.
 
 We can also talk about complexity of distributed algorithms:
 
- * *Time complexity* - How long does it take the algorithm to finish?
- * *Message complexity* - How many messages are sent in the running time of the
-   algorithm.
+* *Time complexity* - How long does it take the algorithm to finish?
+* *Message complexity* - How many messages are sent in the running time of the
+  algorithm.
 
 
 Message passing
@@ -62,9 +62,9 @@ Message passing
 In the first part of this course we'll focus on problems modeled with message
 passing, those include:
 
- * Graph coloring
- * DNS
- * Shortest path
+* Graph coloring
+* DNS
+* Shortest path
 
 Each node is modeled as a graph vertex and each port between 2 nodes as graph
 edge:
@@ -92,10 +92,10 @@ edge:
 
 Each node is composed of the following:
 
- * A *computation unit*, i.e. a CPU / something that runs our program.
- * An *incoming message queue* where all incoming messages arrive, it also
-   saves where each message came from.
- * Bidirectional *ports* that connect the node to its neighbors.
+* A *computation unit*, i.e. a CPU / something that runs our program.
+* An *incoming message queue* where all incoming messages arrive, it also
+  saves where each message came from.
+* Bidirectional *ports* that connect the node to its neighbors.
 
 ::
 
