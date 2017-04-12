@@ -181,7 +181,7 @@ On other nodes:
 By using parent on each of the nodes we get a spanning tree (all nodes except
 root have a single parent, exactly N - 1 edges).
 
-Message M traves twice on all edges except for the tree edges, where it
+Message M traverses twice on all edges except for the tree edges, where it
 traverses once.
 
 Total message complexity is :math:`2|E| - (|V| - 1)`
@@ -216,5 +216,152 @@ Snapshot line:
 
 Lecture 2
 ~~~~~~~~~
+Termination Detection
+---------------------
 
-TODO
+* `Static termination detection` - when a computation does not depend on other
+  nodes, a node can perform its computation and terminate.
+* `Hierachal model of Broadcast and Echo` - each node starts a computation once
+  it receives a prompt from one of the neighbors. The node notifies its parent
+  node once it finished its computation and all non parent nodes finished as
+  well.
+
+Diffusing computation
+---------------------
+* Only one node starts spontaneously
+* All computations happen as a result of receiving a message.
+* If no message is received a node performs arbitrary compuration.
+
+This model is event driven and reactive.
+
+Visual model for termination detection
+``````````````````````````````````````
+We can split each node into several `virtual` nodes.
+
+.. figure:: virtual-nodes.png
+
+In this model, for i < j, :math:`a_i` is created before :math:`a_j`. Naively
+if `a_j` sends k messages, it will expect k acks then "return" (i.e. send ack
+to its parent).
+
+
+Event driven model
+------------------
+
+A distributed computation can be modeled as series of events
+:math:`<e_1,e_2,\dots,e_k>` such than
+
+1. :math:`e_i \Rightarrow e_j` if :math:`e_i` happened before :math:`e_j` at
+   the same node.
+2. :math:`e_i \Rightarrow e_j` if is :math:`e_i` is `send message M` command
+   and :math:`e_j` is the event of receiving the same message `M`
+3. :math:`e_i \Rightarrow e_j` if exists :math:`e_k` such that
+   :math:`e_i \Rightarrow e_k \wedge e_k \Rightarrow e_j`
+
+We can use this model to verify the validity of the snapshot. Given snapshot
+:math:`S = <t_1,t_2,\dots,t_n>` of times each node took the snapshow, we can
+run through the series of the events and check if any of the sent messages
+violates the snapshot.
+
+Syncronous model
+~~~~~~~~~~~~~~~~
+
+In sychronous model we have a global clock. All nodes receive a pulse
+simultaneously and run their tasks on the rising edge. The tasks can include
+arbitrary computation or sending messages.
+
+Our assumptions are:
+
+* Pulse interval is constant
+* All nodes receive pulses at the same moment
+* Time between pulses is infinitely larger than the time it takes to send and
+  receive a single message across a link.
+
+We can then split the computation to rounds, where round i takes place on the
+i-th pulse.
+
+In this model all messages are received prior to the pulse, and put in the
+queue. Then handled only once pulse occurs.
+
+.. figure:: sync-model.png
+
+The node can be seen as a state machine where the state changes each pulse
+and the next state is the result of current state and the sum of received
+messages during last round:
+
+.. math::
+
+  q^{i+1}_v = f(q^{i}_{v},\mbox{messages received during round i})
+
+Syncronizer
+~~~~~~~~~~~
+
+If we can find a way to provide all nodes with a pulse, we can model a
+distributed on asyncronous network as if it was on the syncronous network.
+
+:math:`\alpha` model
+--------------------
+
+This model assumes that it receives a single message from each of the neighbors
+each round. Once all neighbors sent a message to the node, it simulates the
+pulse and advances to the next round.
+
+* Each message carries its round number.
+* If no message is required between a pair of adjacent nodes, we have to send
+  a no-op message.
+* Each incoming message is acked
+* When a node receives acks for all its messages of round(i) it is considered
+  `safe(i)` and can advance to the next round.
+
+:math:`\beta` model
+-------------------
+
+Given a leader L and a spanning tree:
+
+* The leader sends the initial pulse message.
+* Each node receiving the pulse sends it to its descendants in the spanning
+  tree.
+* A node is considered `safe` once all its descendants have acked.
+* A leaf sends its ack right away.
+* A non-leaf node sends its ack to the parent once its `safe`
+
+Once the leader is `safe(i)`, i+1 th pulse is sent.
+
+Complexity analysis
+-------------------
++----------------+----------+------+
+| Model          | Messages | Time |
++================+==========+======+
+| :math:`\alpha` | 2|E|     | O(1) |
++----------------+----------+------+
+| :math:`\beta`  | 2 n      | H    |
++----------------+----------+------+
+
+Where H is the depth of the spanning tree
+
+Hybrid approach - :math:`\gamma` model
+--------------------------------------
+
+* Split the spaning tree into smaller spanning trees.
+* Run :math:`\beta` inside the subtrees
+* Run :math:`\alpha` between the subtrees
+
+We have to introduce new messages but the algorithms stay relatively the same,
+we can use `Safe+EchoSafe` inside subtrees and `TreeSafe+EchoTreeSafe` between
+the subtrees.
+
+Given:
+
+* `h` - the hight of the tree after we compresses nodes into subtrees
+* `D` - number of edges connecting different subtrees
+
+The complexity is
+
++----------------+----------+------+
+| Model          | Messages | Time |
++================+==========+======+
+| :math:`\gamma` | 2|D|+2n  | h    |
++----------------+----------+------+
+
+We can optimize the edge/subtree selection s.t. each subtree is shallow and
+the number of inter subtree edges is low.
