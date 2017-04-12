@@ -365,3 +365,110 @@ The complexity is
 
 We can optimize the edge/subtree selection s.t. each subtree is shallow and
 the number of inter subtree edges is low.
+
+
+Lecture 3
+~~~~~~~~~
+Leader election on a ring
+-------------------------
+
+Requirement: each CPU has a unique name.
+
+Without the above requirement we cannot guarantee leader election. Consider a
+syncronous network of 2 indentical anonymous nodes. If a deterministing leader
+election algorithm exists, it consists of a finite series of messages each node
+sends. For each of the nodes this series is identical to the other because the
+nodes are identical. So at each round the state of both nodes is identical.
+Once our algorithm is done (it is finite), both nodes are wither leaders or not
+leaders. A more detailed proof can be found here_
+
+.. _here: https://en.wikipedia.org/wiki/Leader_election#Anonymous_rings
+
+Now lets consider a ring where each node has a unique name (nodes still don't
+necesarrily know n).
+
+We will come up with an algorithm for an asyncronous network. Our leader will
+be the node with the maximum name.
+
+A naive algorithm
+`````````````````
+
+The initial action each node will do is sending its own name on clockwise edge.
+Then upon each message received on a counter-clockwise edge, send on the
+clockwise edge max(node's name, received name), set this value as leader.
+Continue doing so until the last saved leader name is received again on the
+counter-clockwise edge.
+
+The time complexity here is :math:`O(n)` because leader's message has to
+traverse the whole ring.
+
+For the message complexity we'll have :math:`O(n^2)`. Consider a scenario where
+2nd largest node is on one node clockwise from the largest node, and 3rd is 2
+nodes clockwise, and so on. Second largest name will travel n - 1 node, 3rd
+largest will traverse n - 2 and so on, yielding the second order polynomial.
+
+A more efficient algorithm
+``````````````````````````
+In this algorithm, as the one above, all nodes start as candidates.
+
+If a node receives a name greater than its own, it resigns and becomes a relay.
+A relay node passes a message received from left node to the right node and
+vice-versa.
+
+Initially, each node sends its name both ways and waits for the names of the
+neighbors. A node will remain a candidate if its greater from boths its
+neighbors. After the first round we'll have at most :math:`n / 2` candidate
+nodes. Once a node completes a round (and remains candidate) it initiates
+another round by sending its name both ways, at this moment its neighbors are
+relays and the messages will reach other candidates.
+
+The leader is elected once only one candidate remains. This happens when node
+receives its name from both neighbors (both messages did a round-trip, all
+other nodes are relays).
+
+Each round we halve the number of candidates thus it takes total of
+:math:`O(\log n)` rounds to finish, so total time is :math:`O(n \cdot \log n)`.
+
+Each round a candidate sends 2 messages, so message complexity is
+:math:`O(2n \cdot \log n)`
+
+Better lower bound
+``````````````````
+
+Can we achieve a better bound for leader election with the given assumptions?
+
+We'll first define `open schedule`
+
+::
+
+  The schedule of network is said to be open if the network contains an open
+  edge. An edge is said to be open of no message traversing the edge was
+  received so far.
+
+We'll assume we have a :math:`\Omega(n \cdot \log n)` algorithm, we'll run it
+on a ring with open schedule. WLOG we can assume that at least one message must
+traverse the open edge (otherwise a whole ring can be hidden behind it).
+
+.. figure:: open-schedule.png
+
+Let `M(n)` be the number of messages an algorithm takes on n sized ring.
+
+We'll now take our ring from above and add another ring with open schedule.
+We'll connect the rings once the algorithm finished exchanging messages (and
+waits to pass a message on the open edge).
+
+.. figure:: 2-open-schedules.png
+
+Once the rings are connected each of the rings will notify the other ring of
+its leader.
+
+At worst case a message will traverse `n/2-1` nodes, meaning that our algorithm
+is:
+
+.. math::
+
+  M(n) = 2 \cdot M(n / 2) + (n / 2 - 1) > \Omega(n \cdot \log n)
+
+We've forced the algorithm to send :math:`\Omega(n \cdot \log n)` messages,
+showing that a better bound than :math:`O(n \cdot \log n)` is not possible
+under our assumptions.
