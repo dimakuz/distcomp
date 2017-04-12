@@ -264,7 +264,7 @@ run through the series of the events and check if any of the sent messages
 violates the snapshot.
 
 Syncronous model
-~~~~~~~~~~~~~~~~
+----------------
 
 In sychronous model we have a global clock. All nodes receive a pulse
 simultaneously and run their tasks on the rising edge. The tasks can include
@@ -294,13 +294,13 @@ messages during last round:
   q^{i+1}_v = f(q^{i}_{v},\mbox{messages received during round i})
 
 Syncronizer
-~~~~~~~~~~~
+-----------
 
 If we can find a way to provide all nodes with a pulse, we can model a
 distributed on asyncronous network as if it was on the syncronous network.
 
 :math:`\alpha` model
---------------------
+````````````````````
 
 This model assumes that it receives a single message from each of the neighbors
 each round. Once all neighbors sent a message to the node, it simulates the
@@ -314,7 +314,7 @@ pulse and advances to the next round.
   `safe(i)` and can advance to the next round.
 
 :math:`\beta` model
--------------------
+```````````````````
 
 Given a leader L and a spanning tree:
 
@@ -328,7 +328,7 @@ Given a leader L and a spanning tree:
 Once the leader is `safe(i)`, i+1 th pulse is sent.
 
 Complexity analysis
--------------------
+```````````````````
 +----------------+----------+------+
 | Model          | Messages | Time |
 +================+==========+======+
@@ -340,7 +340,7 @@ Complexity analysis
 Where H is the depth of the spanning tree
 
 Hybrid approach - :math:`\gamma` model
---------------------------------------
+``````````````````````````````````````
 
 * Split the spaning tree into smaller spanning trees.
 * Run :math:`\beta` inside the subtrees
